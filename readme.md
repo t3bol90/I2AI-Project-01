@@ -51,4 +51,8 @@ Dot -  profit.
 
 
 
+Link để edit mớ lộn xộn này: https://hackmd.io/dJar_epXS6a1yA0qzpjnuQ
+
+
+
 **Chúc mọi người một ngày vui vẻ.**
