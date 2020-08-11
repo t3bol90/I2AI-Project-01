@@ -25,7 +25,10 @@ def read_txt(path):
     return n,m,main_matrix,pacman_coordinate
 
 def create_sup_matrix(main_matrix):
-    return main_matrix.T
+    sup_matrix = main_matrix.T
+    for i in range(sup_matrix.shape[0]):
+        sup_matrix[:][i] = sup_matrix[:][i][::-1]  
+    return sup_matrix
 
 def create_sup_matrix_wall(sup_matrix):
     return np.array([[0 if sup_matrix[i,j] != 1 else 1 for i in range(sup_matrix.shape[0])] for j in range(sup_matrix.shape[1])]).T
@@ -33,11 +36,11 @@ def create_sup_matrix_wall(sup_matrix):
 def create_sup_matrix_food(sup_matrix):
     return np.array([[0 if sup_matrix[i,j] != 2 else 2 for i in range(sup_matrix.shape[0])] for j in range(sup_matrix.shape[1])]).T
 
-def find_ghost(sup_matrix):
+def find_ghost(matrix):
     list_ghost = []
-    for i in range(sup_matrix.shape[0]):
-        for j in range(sup_matrix.shape[1]):
-            if(sup_matrix[i,j] == 3):
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if(matrix[i,j] == 3):
                 list_ghost.append((i,j))
     return list_ghost    
             
@@ -45,14 +48,12 @@ def find_ghost(sup_matrix):
 
 if __name__ == "__main__":
 
-    path = "D:\\map1.txt"
+    path = "D:\\cc.txt"
     n,m,main_matrix,pacman_coordinate = read_txt(path)   
     sup_matrix = create_sup_matrix(main_matrix)
-         
     sup_matrix_wall = create_sup_matrix_wall(sup_matrix)
     sup_matrix_food = create_sup_matrix_food(sup_matrix)
     list_ghost = find_ghost(main_matrix)
-    print(main_matrix)
     print(sup_matrix)
     print(sup_matrix_wall)
     print(sup_matrix_food)
