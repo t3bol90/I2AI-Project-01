@@ -36,6 +36,13 @@ def create_sup_matrix_wall(sup_matrix):
 def create_sup_matrix_food(sup_matrix):
     return np.array([[0 if sup_matrix[i,j] != 2 else 2 for i in range(sup_matrix.shape[0])] for j in range(sup_matrix.shape[1])]).T
 
+def find_food(matrix):
+    list_food = []
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if(matrix[i,j] == 2):
+                list_food.append((i,j))
+    return list_food    
 def find_ghost(matrix):
     list_ghost = []
     for i in range(matrix.shape[0]):

@@ -41,11 +41,11 @@ def generate_map(n_rol,n_col,n_food,n_monster,max_length_wall,num_wall):
 
 # n_rol = 15
 # n_col = 15
-# n_food = 4
+# n_food = 1
 # n_monster = 0
 n_rol,n_col,n_food,n_monster,max_length_wall,num_wall = list(map(int,input().split()))
 _map,pacman = generate_map(n_col,n_rol,n_food,n_monster,max_length_wall,num_wall)
 h = f'{n_rol} {n_col}'
 f = f'{pacman[0]} {pacman[1]}'
-np.savetxt('map.txt',_map,header = h,footer = f,fmt='%.0f',comments= '')
+np.savetxt('map1.txt',_map,header = h,footer = f,fmt='%.0f',comments= '')
 
