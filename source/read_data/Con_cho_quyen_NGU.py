@@ -25,7 +25,7 @@ def read_txt(path):
     return n,m,main_matrix,pacman_coordinate
 
 def create_sup_matrix(main_matrix):
-    sup_matrix = main_matrix.T
+    sup_matrix = main_matrix.copy().T
     for i in range(sup_matrix.shape[0]):
         sup_matrix[:][i] = sup_matrix[:][i][::-1]  
     return sup_matrix
@@ -54,6 +54,7 @@ if __name__ == "__main__":
     sup_matrix_wall = create_sup_matrix_wall(sup_matrix)
     sup_matrix_food = create_sup_matrix_food(sup_matrix)
     list_ghost = find_ghost(main_matrix)
+    print(main_matrix)
     print(sup_matrix)
     print(sup_matrix_wall)
     print(sup_matrix_food)
