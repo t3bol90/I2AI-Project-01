@@ -9,7 +9,6 @@ def A_star(_map:list,start_pos:tuple,des_pos:tuple,n_rol:int,n_col:int):
     visited_node = {}
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     while min_heap:
-        print(min_heap)
         cur_f_x,cur_pos = heappop(min_heap)
         cur_h_n = h_n(cur_pos,des_pos)
         if cur_pos == des_pos:
