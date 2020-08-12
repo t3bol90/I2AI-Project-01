@@ -36,7 +36,7 @@ Dot -  profit.
 
 -	Pacman không thấy toàn bộ bản đồ.
 -	Nhìn thấy trong vòng 3 bước, vision là 8 ô.
--	Có nhiều điểm thức ăn.
+-	Có nhiều điểm thức ăn.m
 -	Monster di chuyển dc.
 ###### Level 4:
 -	Monster tìm pacman và tiêu diệt.
