@@ -78,11 +78,11 @@ def find_ghost(matrix):
 class GameController:
 	def __init__(self,maze,posPacman):
 		self.pacman = None
-		self.posPacman = posPacman
 		self.maze = maze
 		self.graphic = PacmanGraphics()
 		self.width = len(maze[0])
 		self.height = len(maze)
+		self.posPacman = self.ConvertIndexGraphic(posPacman)
 		self.posGhost = np.array(find_ghost(create_sup_matrix(maze)))
 		self.walls = np.array(create_sup_matrix_wall(create_sup_matrix(maze)))
 		self.isLose = False
@@ -100,8 +100,10 @@ class GameController:
 		self.foods = np.array(self.graphic.DrawFood(create_sup_matrix_food(create_sup_matrix(self.maze))))
 		if(_level == 1 or _level == 2):
 			self.Level1_2(_level)
-		elif(_level == 3 or _level == 4):
-			self.Level3_4(_level)
+		elif(_level == 3):
+			self.Level3()
+		elif(_level == 4):
+			pass
 		sleep(1)
 		if(self.isLose):
 			text(self.graphic.to_screen((0, self.height/2)), formatColor(255.0/255.0,0,0),"LOSE GAME", "Times", int(0.08*self.width*self.graphic.gridSize), "bold")
@@ -109,8 +111,7 @@ class GameController:
 			_canvas_xs = (2+self.graphic.width)*self.graphic.gridSize
 			_canvas_ys = (2+self.graphic.height)*self.graphic.gridSize + INFO_PANE_HEIGHT
 			_color = formatColor(96.0/255.0,172.0/255.0,172.0/255.0)
-			corners = [(0,0), (0, _canvas_ys), (_canvas_xs, _canvas_ys), (_canvas_xs, 0)]
-			polygon(corners,_color , fillColor = _color , filled=True, smoothed=False)
+			polygon([(0,0), (0, _canvas_ys), (_canvas_xs, _canvas_ys), (_canvas_xs, 0)],_color , fillColor = _color , filled=True, smoothed=False)
 			text(self.graphic.to_screen((0, self.height/2)), formatColor(148.0/255.0,0,211.0/255.0),"OPTIMAL SCORE: " + str(self.graphic.score), "Times", int(0.065*self.width*self.graphic.gridSize), "bold")
 		print("MAX SCORE: ",self.graphic.score)
 		sleep(2)
@@ -118,27 +119,33 @@ class GameController:
 	def Level1_2(self,_level):
 		# Call search stragety for list path
 		# Call A* here
-		travelsal = [(4,0),(4,5),(0,5),(0,0),(4,0)] #(0,8)
-		for i in travelsal:
-			self.AgentMove(i,0,True)
-	def Level3_4(self,_level):
+		__foodsPosition = np.argwhere(self.foods != None)
+		if(len(__foodsPosition) != 0):
+			travelsal,cost = astar_function(self.maze,self.ConvertIndexMaze(self.posPacman),self.ConvertIndexMaze(__foodsPosition[0]),self.height,self.width)
+			if(cost < 20):
+				for i in travelsal:
+					self.AgentMove(i,0,True)
+	def Level3(self):
 		# Turn base
 		while(True):
-			_actionPos = self.PacmanTurn()
-			self.AgentMove(_actionPos,0,True)
+			__actionPos = self.PacmanTurn()
+			self.AgentMove(__actionPos,0,True)
 			if(self.IsEndGame() == True):
+				self.isLose = True
 				return
 			for i in range(len(self.ghost)):
-				_actionPos = self.GhostTurn(i,_level)
-				self.AgentMove(_actionPos,i,False)
+				__actionPos = self.GhostTurn(i,_level)
+				self.AgentMove(__actionPos,i,False)
 				if(self.IsEndGame() == True):
+					self.isLose = True
 					return
 	def GhostTurn(self,index,_level):
 		__actionPos = (0,0)
 		if(_level == 3):
-			temp = [(-1,0),(1,0),(0,1),(0,-1)]
-			temp2 = temp[randint(0,3)]
-			__actionPos = (self.posGhost[index][0]+temp2[0],self.posGhost[index][1]+temp2[1])
+			pass
+		else:
+			travelsal,cost = astar_function(self.maze,self.ConvertIndexMaze(self.posGhost[index]),self.ConvertIndexMaze(self.posPacman),self.height,self.width)
+			__actionPos = (travelsal[0][0],travelsal[0][1]) if lend(travelsal) != 0 else self.posGhost[index]
 		return __actionPos
 	def IsEndGame(self):
 		for i in self.posGhost:
@@ -153,7 +160,7 @@ class GameController:
 		__actionPos = (self.posPacman[0]+temp2[0],self.posPacman[1]+temp2[1])
 		return __actionPos
 	def AgentMove(self,pos,index,isPacman = True):
-		pos = self.ConvertIndex(pos)
+		pos = self.ConvertIndexGraphic(pos)
 		if(isPacman):
 			self.graphic.AnimatePacman(self.posPacman,pos,self.pacman)
 			self.posPacman = pos
@@ -166,5 +173,8 @@ class GameController:
 		else:
 			self.graphic.AnimateGhost(self.posGhost[index],pos,index,self.ghost[index])
 			self.posGhost[index] = pos
-	def ConvertIndex(self,index):
+	def ConvertIndexGraphic(self,index):
 		return (index[1],self.height - 1 - index[0])
+
+	def ConvertIndexMaze(self,index):
+		return ((self.height - 1) - index[1],index[0])

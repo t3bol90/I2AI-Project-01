@@ -10,8 +10,6 @@ DEFAULT_GRID_SIZE = 30.0
 INFO_PANE_HEIGHT = 35   
 BACKGROUND_COLOR = formatColor(0,0,0)
 WALL_COLOR = formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0)
-INFO_PANE_COLOR = formatColor(.4,.4,0)
-SCORE_COLOR = formatColor(.9, .9, .9)
 PACMAN_OUTLINE_WIDTH = 2
 PACMAN_CAPTURE_OUTLINE_WIDTH = 4
 
@@ -52,11 +50,7 @@ FOOD_SIZE = 0.1
 
 # Laser
 LASER_COLOR = formatColor(1,0,0)
-LASER_SIZE = 0.02
 
-# Capsule graphics
-CAPSULE_COLOR = formatColor(1,1,1)
-CAPSULE_SIZE = 0.25
 
 # Drawing walls
 WALL_RADIUS = 0.15
@@ -68,7 +62,7 @@ class InfoPane:
     self.base = (height + 1) * gridSize
     self.height = INFO_PANE_HEIGHT
     self.fontSize = 24
-    self.textColor = PACMAN_COLOR
+    self.textColor = LASER_COLOR
     self.drawPane()
 
   def toScreen(self, pos, y = None):
@@ -197,9 +191,9 @@ class PacmanGraphics:
       min = dist(w,posY)
       i = 0
       e = (posX[0]+1, posX[1])
-      if(dist(w,posY) < min):
+      if(dist(e,posY) < min):
           i = 1
-          min = dist(w,posY)
+          min = dist(e,posY)
       n = (posX[0], posX[1]+1)
       if(dist(n,posY) < min):
           i = 2

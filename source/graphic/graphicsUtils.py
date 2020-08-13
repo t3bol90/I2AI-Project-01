@@ -72,10 +72,6 @@ def draw_background():
     
 def _destroy_window(event=None):
     sys.exit(0)
-#    global _root_window
-#    _root_window.destroy()
-#    _root_window = None
-    #print "DESTROY"
 
 def end_graphics():
     global _root_window, _canvas, _mouse_enabled
@@ -129,7 +125,6 @@ def circle(pos, r, outlineColor, fillColor, endpoints=None, style='pieslice', wi
 
 def image(pos, file="../../blueghost.gif"):
     x, y = pos
-    # img = PhotoImage(file=file)
     return _canvas.create_image(x, y, image = tkinter.PhotoImage(file=file), anchor = tkinter.NW)
     
     
