@@ -80,7 +80,7 @@ class InfoPane:
     else:
       x = pos
 
-    x = self.gridSize + x # Margin
+    x = self.gridSize + x
     y = self.base + y
     return x,y
 
@@ -100,16 +100,16 @@ class PacmanGraphics:
     self.capture = capture
     self.frameTime = frameTime
 
-  def initialize(self, width,height, isBlue = False):
+  def Initialize(self, width,height, isBlue = False):
     self.isBlue = isBlue
-    self.startGraphics(width,height)
+    self.StartGraphics(width,height)
 
-  def startGraphics(self, width,height):
+  def StartGraphics(self, width,height):
     self.width = width
     self.height = height
-    self.make_window(self.width, self.height)
+    self.Make_window(self.width, self.height)
     self.infoPane = InfoPane(width,height, self.gridSize)
-  def make_window(self, width, height):
+  def Make_window(self, width, height):
     grid_width = (width) * self.gridSize
     grid_height = (height) * self.gridSize
     screen_width = 2*self.gridSize + grid_width
@@ -122,19 +122,20 @@ class PacmanGraphics:
     line((grid_width+skin,self.gridSize-skin),(grid_width+skin,skin+grid_height),WALL_COLOR,3)
 
 
-  def drawPacman(self, position, index,direction = "East"):
+  def DrawPacman(self, position, index,direction = "East"):
     screen_point = self.to_screen(position)
-    endpoints = self.getEndpoints(direction,screen_point)
+    endpoints = self.GetEndpoints(direction,screen_point)
     width = PACMAN_OUTLINE_WIDTH
     outlineColor = PACMAN_COLOR
     fillColor = PACMAN_COLOR
+    self.score = 0
     if self.capture:
       outlineColor = TEAM_COLORS[index % 2]
       fillColor = GHOST_COLORS[index]
       width = PACMAN_CAPTURE_OUTLINE_WIDTH
     return [circle(screen_point, PACMAN_SCALE * self.gridSize,fillColor = fillColor, outlineColor = outlineColor,endpoints = endpoints,width = width)]
 
-  def getEndpoints(self, direction, position=(0,0)):
+  def GetEndpoints(self, direction, position=(0,0)):
     x, y = position
     pos = x - int(x) + y - int(y)
     width = 30 + 80 * math.sin(math.pi* pos)
@@ -162,14 +163,14 @@ class PacmanGraphics:
     y = (self.height  - y)*self.gridSize
     return ( x, y )
 
-  def movePacman(self, position, direction, image):
+  def MovePacman(self, position, direction, image):
     screenPosition = self.to_screen(position)
-    endpoints = self.getEndpoints( direction, position )
+    endpoints = self.GetEndpoints( direction, position )
     r = PACMAN_SCALE * self.gridSize
     moveCircle(image[0], screenPosition, r, endpoints)
     refresh()
 
-  def animatePacman(self, posPrevPacman,posPacman, image):
+  def AnimatePacman(self, posPrevPacman,posPacman, image):
     self.frameTime = 0.5
     if self.frameTime > 0.01 or self.frameTime < 0:
       start = time.time()
@@ -178,14 +179,19 @@ class PacmanGraphics:
       frames = 4.0
       for i in range(1,int(frames) + 1):
         pos = px*i/frames + fx*(frames-i)/frames, py*i/frames + fy*(frames-i)/frames
-        self.movePacman(pos, self.getDirection(posPrevPacman,posPacman), image)
+        self.MovePacman(pos, self.GetDirection(posPrevPacman,posPacman), image)
         refresh()
         sleep(abs(self.frameTime) / frames)
     else:
-      self.movePacman(posPacman, self.getDirection(posPrevPacman,posPacman), image)
+      self.MovePacman(posPacman, self.GetDirection(posPrevPacman,posPacman), image)
     refresh()
+    #self.score -= 1
 
-  def getDirection(self,posX,posY):
+  def UpdateScore(self,scoreBonus = 0):
+      self.score += scoreBonus-1
+      self.infoPane.updateScore(self.score)
+
+  def GetDirection(self,posX,posY):
       dir = ["West","East","North","South"]
       w = (posX[0]-1, posX[1])
       min = dist(w,posY)
@@ -202,7 +208,7 @@ class PacmanGraphics:
       if(dist(s,posY) < min):
           i = 3
       return dir[i]
-  def drawGhost(self, position, agentIndex,direction = "East"):
+  def DrawGhost(self, position, agentIndex,direction = "East"):
     pos = position
     dir = direction
     (screen_x, screen_y) = (self.to_screen(pos))
@@ -238,7 +244,7 @@ class PacmanGraphics:
 
     return ghostImageParts
 
-  def animateGhost(self, posPrevGhost, posGhost, ghostIndex, ghostImageParts):
+  def AnimateGhost(self, posPrevGhost, posGhost, ghostIndex, ghostImageParts):
     old_x, old_y = posPrevGhost[0],posPrevGhost[1]
     new_x, new_y = posGhost[0],posGhost[1]
     self.frameTime = 0.5
@@ -248,15 +254,14 @@ class PacmanGraphics:
         pos = new_x*i/frames + old_x*(frames-i)/frames, new_y*i/frames + old_y*(frames-i)/frames
         for ghostImagePart in ghostImageParts:
             move_to(ghostImagePart, self.to_screen(pos))
-            #refresh()
-        self.moveEyes(pos, self.getDirection(posPrevGhost,posGhost), ghostImageParts[-4:])
+        self.MoveEyes(pos, self.GetDirection(posPrevGhost,posGhost), ghostImageParts[-4:])
         refresh()
         sleep(abs(self.frameTime) / frames)
     color = GHOST_COLORS[ghostIndex]
     edit(ghostImageParts[0], ('fill', color), ('outline', color))
     refresh()
 
-  def moveEyes(self, pos, dir, eyes):
+  def MoveEyes(self, pos, dir, eyes):
     (screen_x, screen_y) = (self.to_screen(pos) )
     dx = 0
     dy = 0
@@ -273,7 +278,7 @@ class PacmanGraphics:
     moveCircle(eyes[2],(screen_x+self.gridSize*GHOST_SIZE*(-0.3+dx), screen_y-self.gridSize*GHOST_SIZE*(0.3-dy)), self.gridSize*GHOST_SIZE*0.08)
     moveCircle(eyes[3],(screen_x+self.gridSize*GHOST_SIZE*(0.3+dx), screen_y-self.gridSize*GHOST_SIZE*(0.3-dy)), self.gridSize*GHOST_SIZE*0.08)
 
-  def drawWalls(self, wallMatrix):
+  def DrawWalls(self, wallMatrix):
     wallColor = WALL_COLOR
     for xNum, x in enumerate(wallMatrix):
       if self.capture and (xNum * 2) < len(wallMatrix): wallColor = TEAM_COLORS[0]
@@ -286,14 +291,14 @@ class PacmanGraphics:
           screen2 = self.to_screen2(pos)
 
           # draw each quadrant of the square based on adjacent walls
-          wIsWall = self.isWall(xNum-1, yNum, wallMatrix)
-          eIsWall = self.isWall(xNum+1, yNum, wallMatrix)
-          nIsWall = self.isWall(xNum, yNum+1, wallMatrix)
-          sIsWall = self.isWall(xNum, yNum-1, wallMatrix)
-          nwIsWall = self.isWall(xNum-1, yNum+1, wallMatrix)
-          swIsWall = self.isWall(xNum-1, yNum-1, wallMatrix)
-          neIsWall = self.isWall(xNum+1, yNum+1, wallMatrix)
-          seIsWall = self.isWall(xNum+1, yNum-1, wallMatrix)
+          wIsWall = self.IsWall(xNum-1, yNum, wallMatrix)
+          eIsWall = self.IsWall(xNum+1, yNum, wallMatrix)
+          nIsWall = self.IsWall(xNum, yNum+1, wallMatrix)
+          sIsWall = self.IsWall(xNum, yNum-1, wallMatrix)
+          nwIsWall = self.IsWall(xNum-1, yNum+1, wallMatrix)
+          swIsWall = self.IsWall(xNum-1, yNum-1, wallMatrix)
+          neIsWall = self.IsWall(xNum+1, yNum+1, wallMatrix)
+          seIsWall = self.IsWall(xNum+1, yNum-1, wallMatrix)
 
           # NE quadrant
           if (not nIsWall) and (not eIsWall):
@@ -359,16 +364,38 @@ class PacmanGraphics:
             line(add(screen, (self.gridSize*(-2)*WALL_RADIUS+1, self.gridSize*(1)*WALL_RADIUS)), add(screen, (self.gridSize*(-0.5), self.gridSize*(1)*WALL_RADIUS)), wallColor)
             line(add(screen, (self.gridSize*(-1)*WALL_RADIUS, self.gridSize*(2)*WALL_RADIUS-1)), add(screen, (self.gridSize*(-1)*WALL_RADIUS, self.gridSize*(0.5))), wallColor)
 
-  def isWall(self, x, y, walls):
+  def IsWall(self, x, y, walls):
     if x < 0 or y < 0:
       return False
     if x >= len(walls) or y >= len(walls[0]):
       return False
-    if(walls[x][y] != 1):
-        return False
-    return True
-    #return True if walls[x][y] == 1 else False
+    return True if walls[x][y] == 1 else False
 
+  def DrawFood(self, foodMatrix ):
+    foodImages = []
+    color = FOOD_COLOR
+    for xNum, x in enumerate(foodMatrix):
+      imageRow = []
+      foodImages.append(imageRow)
+      for yNum, cell in enumerate(x):
+        if cell: # There's food here
+          screen = self.to_screen((xNum, yNum ))
+          dot = circle( screen,
+                        FOOD_SIZE * self.gridSize,
+                        outlineColor = color, fillColor = color,
+                        width = 1)
+          imageRow.append(dot)
+        else:
+          imageRow.append(None)
+    return foodImages
+
+  def RemoveFood(self, cell, foodImages ):
+    x, y = cell
+    remove_from_screen(foodImages[x][y])
+
+  def EndGraphics(self):
+    clear_screen()
+    end_graphics()
 def add(x, y):
     return (x[0] + y[0], x[1] + y[1])
 def dist(posX,posY):

@@ -42,7 +42,6 @@ def sleep(secs):
 def begin_graphics(width=640, height=480, color=formatColor(0, 0, 0), title=None):
 
     global _root_window, _canvas, _canvas_x, _canvas_y, _canvas_xs, _canvas_ys, _bg_color
-
     # Check for duplicate call
     if _root_window is not None:
         # Lose the window.
@@ -91,7 +90,6 @@ def end_graphics():
       _root_window = None
       _canvas = None
       _mouse_enabled = 0
-      _clear_keys()
 
 def clear_screen(background=None):
     global _canvas_x, _canvas_y
