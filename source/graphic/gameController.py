@@ -117,7 +117,7 @@ class GameController:
 		sleep(2)
 		self.graphic.EndGraphics()
 	def Level1_2(self,_level):
-		# Call search stragety for list path
+		# Call search strategy for list path
 		# Call A* here
 		__foodsPosition = np.argwhere(self.foods != None)
 		if(len(__foodsPosition) != 0):
