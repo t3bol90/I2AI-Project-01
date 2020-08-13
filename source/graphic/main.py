@@ -20,7 +20,7 @@ def read_txt(path):
     pacman_coordinate = ((int(list2[0]), int(list2[1])))
     return n,m,main_matrix,pacman_coordinate
 def main():
-	n,m,main_matrix,pacman_coordinate = read_txt("D:\Maze-15.txt")
+	n,m,main_matrix,pacman_coordinate = read_txt("../random_map/map3.txt")
 	game = GameController(main_matrix,pacman_coordinate)
 	game.StartGame(2)
 main()
