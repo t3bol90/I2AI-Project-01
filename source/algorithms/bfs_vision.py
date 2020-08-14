@@ -6,6 +6,8 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
     q.append(start_pos)
     visited[start_pos[0]][start_pos[1]] = True
     ans = []
+    foods = []
+    monster = []
     distx = [0,0,1,-1]
     disty = [1,-1,0,0]
     def is_valid(_x,_y):
@@ -13,6 +15,10 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
     while q:
         top = q.popleft()
         ans.append(top)
+        if _map[top[0]][top[1]] == 2:
+            foods.append(top)
+        elif _map[top[0]][top[1]] == 3:
+            monster.append(top)
         for dx,dy in zip(distx,disty):
             x = top[0] + dx
             y = top[1] + dy 
@@ -22,7 +28,7 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
                     continue
                 q.append((x,y))
                 visited[x][y] = True
-    return ans
+    return ans,foods,monster
 
 if __name__ == '__main__':
     start_pos = (7,7)
