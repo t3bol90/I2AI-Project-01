@@ -35,7 +35,15 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
     return ans,foods,monster
 
 
-
+#Cập nhật lại khoảng cách tới food đã tìm thấy sau khi đi 1 bước mới
+def update_dis_to_food(queue_food : Q.PriorityQueue, pacman_pos):
+    food_pos = []
+    while not queue_food.empty():
+        cur_food = queue_food.get()[1]
+        food_pos.append(cur_food)
+    for i in food_pos:
+        cost = h_n(pacman_pos,i)
+        queue_food.put((cost,i))
 
 #tính trung tâm của map
 def cal_center(_map: list):
