@@ -35,15 +35,7 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
     return ans,foods,monster
 
 
-#Cập nhật lại khoảng cách tới food đã tìm thấy sau khi đi 1 bước mới
-def update_dis_to_food(queue_food : Q.PriorityQueue, pacman_pos):
-    food_pos = []
-    while not queue_food.empty():
-        cur_food = queue_food.get()[1]
-        food_pos.append(cur_food)
-    for i in food_pos:
-        cost = h_n(pacman_pos,i)
-        queue_food.put((cost,i))
+
 
 #tính trung tâm của map
 def cal_center(_map: list):
@@ -85,6 +77,11 @@ def monster_move(monste_pos):
 def cal_monster(_map,pacman_pos,queue_food,monster,visited_center):
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     valid_pos = []
+    notsafe_pos = []
+    for m in monster:
+        dis_monster = h_n(pacman_pos,m)
+        if dis_monster == 1 or dis_monster == 2:
+            notsafe_pos.append(m)
     notsafe_pos = monster_move(monster)
     for d in direction:
         move = ((pacman_pos[0] + d[0]),(pacman_pos[1] + d[1]))
@@ -147,7 +144,7 @@ if __name__ == '__main__':
     queue_food = Q.PriorityQueue()
     #queue_food.put((6,(0,8)))
     next_move = (0,0)
-    monster = [(2,10),(4,12)]
+    monster = [(2,10),(3,12),(10,10)]
     print(cal_monster(_map,start_pos,queue_food,monster,visited_center))
     # if(len(food)==0):
     #     next_move = cal_pos_nothing(_map,start_pos,visited_center)
