@@ -387,6 +387,21 @@ class PacmanGraphics:
     x, y = cell
     remove_from_screen(foodImages[x][y])
 
+  def DrawAura(self, auraIndex):
+      auraIndex.pop(0)
+      auraImages = []
+      color = LASER_COLOR
+      for pos in auraIndex:
+          screen = self.to_screen((pos[0], pos[1]))
+          dot = circle( screen,
+                        FOOD_SIZE * self.gridSize,
+                        outlineColor = color, fillColor = color,
+                        width = 1.5)
+          auraImages.append(dot)
+      return auraImages
+  def RemoveAura(self,auraImages):
+      for pos in auraImages:
+          remove_from_screen(pos)
   def EndGraphics(self):
     clear_screen()
     end_graphics()

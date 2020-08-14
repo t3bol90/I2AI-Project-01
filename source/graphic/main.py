@@ -1,5 +1,4 @@
 from gameController import *
-import numpy as np
 
 def read_txt(path):
     f = open(path)
@@ -20,7 +19,7 @@ def read_txt(path):
     pacman_coordinate = ((int(list2[0]), int(list2[1])))
     return n,m,main_matrix,pacman_coordinate
 def main():
-	n,m,main_matrix,pacman_coordinate = read_txt("../random_map/map2.txt")
+	n,m,main_matrix,pacman_coordinate = read_txt("D:\Maze-15.txt")
 	game = GameController(main_matrix,pacman_coordinate)
-	game.StartGame(2)
+	game.StartGame(3)
 main()

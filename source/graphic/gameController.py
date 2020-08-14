@@ -1,84 +1,13 @@
 from pacmanGraphics import *
 from random import *
 from graphicsUtils import *
-import numpy as np
-from queue import heappop,heappush
-import types
-
-def h_n(start_pos:tuple,des_pos:tuple):
-    return abs(start_pos[0] - des_pos[0]) + abs(start_pos[1] - des_pos[1])
-def astar_function(_map:list,start_pos:tuple,des_pos:tuple,n_rol:int,n_col:int):
-    min_heap = []
-    heappush(min_heap,(h_n(start_pos,des_pos),start_pos))
-    visited_node = {}
-    direction = [(1,0),(0,1),(-1,0),(0,-1)]
-    while min_heap:
-        cur_f_x,cur_pos = heappop(min_heap)
-        cur_h_n = h_n(cur_pos,des_pos)
-        if cur_pos == des_pos:
-            path = []
-            path.append(cur_pos)
-            while path[-1] != start_pos:
-                path.append(visited_node[path[-1]])
-            path.reverse()
-            return path, len(path)
-        adj_node = ()
-        for i in direction: 
-            adj_node = ((cur_pos[0] + i[0]),(cur_pos[1] + i[1]))
-            if adj_node[0] == n_rol or adj_node[1] == n_col or adj_node[0] * adj_node[1] < 0:
-                continue
-            if adj_node not in visited_node and _map[adj_node[0]][adj_node[1]] != 1:
-                adj_f_x = (cur_f_x - cur_h_n) + 1 + h_n(adj_node,des_pos)
-                heappush(min_heap,(adj_f_x,adj_node))
-                visited_node[adj_node] = cur_pos
-    return [],0
-        
-
-        
-# start_pos = (1,1)
-# des_pos = (14,14)
-# _map = [[1,1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
-# [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-# [0, 2, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
-# [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-# [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0],
-# [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]]
-# print(_map)
-# print(astar_function(_map,start_pos,des_pos,15,15))
-
-def create_sup_matrix(main_matrix):
-    sup_matrix = main_matrix.copy().T
-    for i in range(sup_matrix.shape[0]):
-        sup_matrix[:][i] = sup_matrix[:][i][::-1]  
-    return sup_matrix
-
-def create_sup_matrix_wall(sup_matrix):
-    return np.array([[0 if sup_matrix[i,j] != 1 else 1 for i in range(sup_matrix.shape[0])] for j in range(sup_matrix.shape[1])]).T
-
-def create_sup_matrix_food(sup_matrix):
-    return np.array([[0 if sup_matrix[i,j] != 2 else 2 for i in range(sup_matrix.shape[0])] for j in range(sup_matrix.shape[1])]).T
-
-def find_ghost(matrix):
-    list_ghost = []
-    for i in range(matrix.shape[0]):
-        for j in range(matrix.shape[1]):
-            if(matrix[i,j] == 3):
-                list_ghost.append((i,j))
-    return list_ghost    
+from algorithms import *
+import operator
 
 class GameController:
 	def __init__(self,maze,posPacman):
 		self.pacman = None
-		self.maze = maze
+		self.maze = np.array(maze,dtype = np.uint8)
 		self.graphic = PacmanGraphics()
 		self.width = len(maze[0])
 		self.height = len(maze)
@@ -87,6 +16,7 @@ class GameController:
 		self.walls = np.array(create_sup_matrix_wall(create_sup_matrix(maze)))
 		self.isLose = False
 		self.ghost = []
+		self.movementList = [ [] for i in range(len(self.posGhost))]
 	def StartGame(self,_level = 1):
 		self.graphic.Initialize(self.width,self.height)
 		self.graphic.DrawWalls(self.walls)
@@ -117,7 +47,7 @@ class GameController:
 		sleep(2)
 		self.graphic.EndGraphics()
 	def Level1_2(self,_level):
-		# Call search strategy for list path
+		# Call search stragety for list path
 		# Call A* here
 		__foodsPosition = np.argwhere(self.foods != None)
 		if(len(__foodsPosition) != 0):
@@ -128,37 +58,75 @@ class GameController:
 	def Level3(self):
 		# Turn base
 		while(True):
-			__actionPos = self.PacmanTurn()
-			self.AgentMove(__actionPos,0,True)
+			# Pacman turn
+			queue_food = Q.PriorityQueue()
+			__next_move,__vision,foods,ghost = self.PacmanTurn(queue_food)
+			self.AgentMove(__next_move,0,True)
+			# Draw Aura
+			temp = []
+			for i in __vision:
+				temp.append(self.ConvertIndexGraphic(i))
+			__auraImg = self.graphic.DrawAura(temp)
+			# Check is end game?
 			if(self.IsEndGame() == True):
-				self.isLose = True
 				return
+			# Monster turn
 			for i in range(len(self.ghost)):
-				__actionPos = self.GhostTurn(i,_level)
-				self.AgentMove(__actionPos,i,False)
+				__next_move = self.GhostTurn(i,3)
+				if (__next_move is not None):
+					self.AgentMove(__next_move,i,False)
 				if(self.IsEndGame() == True):
-					self.isLose = True
 					return
+			# Remove aura
+			self.graphic.RemoveAura(__auraImg)
 	def GhostTurn(self,index,_level):
-		__actionPos = (0,0)
+		__next_move = None
 		if(_level == 3):
-			pass
+			__next_move = self.ConvertIndexMaze(self.posGhost[index])
+			if(len(self.movementList[index]) == 0):
+				crossMovement = [[(-1,0),(-1,0),(1,0),(1,0),(1,0),(1,0),(-1,0),(-1,0)],[(0,1),(0,1),(0,-1),(0,-1),(0,-1),(0,-1),(0,1),(0,1)]]
+				squareMovement = [[(-1,0),(0,1),(1,0),(0,-1)],[(-1,0),(0,-1),(1,0),(0,1)]]
+				if(randint(0,1) == 0):
+					# Cross movement
+					if(randint(0,1) == 1):
+						self.movementList[index] = crossMovement[randint(0,1)]
+					else:
+						self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in crossMovement[randint(0,1)]]
+				else:
+					# Square movement
+					if(randint(0,1) == 1):
+						self.movementList[index] = squareMovement[randint(0,1)]
+					else:
+						self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in squareMovement[randint(0,1)]]
+			while(True):
+				__next_move = tuple(map(operator.add, __next_move , self.movementList[index].pop(0)))
+				if(__next_move[0] < self.height and __next_move[1] < self.width and self.maze[__next_move] != 1):
+					break
 		else:
 			travelsal,cost = astar_function(self.maze,self.ConvertIndexMaze(self.posGhost[index]),self.ConvertIndexMaze(self.posPacman),self.height,self.width)
-			__actionPos = (travelsal[0][0],travelsal[0][1]) if lend(travelsal) != 0 else self.posGhost[index]
-		return __actionPos
+			__next_move = travelsal.pop(1) if len(travelsal)> 1 else None
+		return __next_move
 	def IsEndGame(self):
 		for i in self.posGhost:
 			if(i[0] == self.posPacman[0] and i[1] == self.posPacman[1]):
 				self.isLose = True
 				return True
 		return False
-	def PacmanTurn(self):
-		__actionPos = (0,0)
-		temp = [(-1,0),(1,0),(0,1),(0,-1)]
-		temp2 = temp[randint(0,3)]
-		__actionPos = (self.posPacman[0]+temp2[0],self.posPacman[1]+temp2[1])
-		return __actionPos
+	def PacmanTurn(self,queue_food):
+		__vision,foods,ghost = get_vision(self.maze,self.ConvertIndexMaze(self.posPacman),self.height,self.width)
+		__next_move = self.ConvertIndexMaze(self.posPacman)
+		if(len(ghost) > 0):
+			# Case 4, minimax
+			pass
+		elif(len(foods) >= 1):
+			# Case 2,3, has foods
+			__next_move = cal_pos(self.maze,self.ConvertIndexMaze(self.posPacman),queue_food,foods)
+			pass
+		else:
+			# Case 1
+			__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True)
+		__vision,foods,ghost = get_vision(self.maze,__next_move,self.height,self.width)
+		return __next_move,__vision,foods,ghost
 	def AgentMove(self,pos,index,isPacman = True):
 		pos = self.ConvertIndexGraphic(pos)
 		if(isPacman):
@@ -172,9 +140,13 @@ class GameController:
 			self.graphic.UpdateScore(scoreBonus)
 		else:
 			self.graphic.AnimateGhost(self.posGhost[index],pos,index,self.ghost[index])
+			self.maze[self.ConvertIndexMaze(pos)] = 3
+			self.maze[self.ConvertIndexMaze(self.posGhost[index])] = 0
 			self.posGhost[index] = pos
 	def ConvertIndexGraphic(self,index):
 		return (index[1],self.height - 1 - index[0])
 
 	def ConvertIndexMaze(self,index):
 		return ((self.height - 1) - index[1],index[0])
+
+	
