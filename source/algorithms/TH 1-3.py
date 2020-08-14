@@ -33,8 +33,15 @@ def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
                 visited[x][y] = True
     return ans,foods,monster
 
-
-
+#Cập nhật lại khoảng cách tới food đã tìm thấy sau khi đi 1 bước mới
+def update_dis_to_food(queue_food : Q.PriorityQueue, pacman_pos):
+    food_pos = []
+    while not queue_food.empty():
+        cur_food = queue_food.get()[1]
+        food_pos.append(cur_food)
+    for i in food_pos:
+        cost = h_n(pacman_pos,i)
+        queue_food.put((cost,i))
 
 #tính trung tâm của map
 def cal_center(_map: list):
@@ -59,7 +66,7 @@ def cal_pos_nothing(_map,pacman_pos : tuple, visited_center):
 #Xét có food thì gọi hàm này   
 def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list):
     for i in food:
-        traversal , cost = astar_function(_map,start_pos,i,len(_map[1]),len(_map[0]))
+        cost = h_n(pacman_pos,i)
         queue_food.put((cost,i))
     
     closest_food = queue_food.queue[0]  
@@ -71,10 +78,10 @@ if __name__ == '__main__':
     start_pos = (3,11)
     # des_pos = (14,14)
     
-    _map = [[1, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
+    _map = [[1, 1, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 0, 0, 0],
             [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
             [0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
             [0, 2, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
             [0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -99,6 +106,10 @@ if __name__ == '__main__':
         next_move = cal_pos(_map,start_pos,queue_food,food)
         
     print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)    
+    print(queue_food.queue[0])
+    
    
     
     
