@@ -5,7 +5,10 @@ import types
 from random import *
 from collections import deque
 import operator
-
+FOODS = 2
+MONSTER = 3
+WALL = 1
+NOTWALL = 0
 def is_valid(_x,_y,n_col,n_row):
     return _x in range(n_col) and _y in range(n_row)
 def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
@@ -59,7 +62,7 @@ def astar_function(_map:list,start_pos:tuple,des_pos:tuple,n_rol:int,n_col:int):
             adj_node = ((cur_pos[0] + i[0]),(cur_pos[1] + i[1]))
             if adj_node[0] == n_rol or adj_node[1] == n_col or adj_node[0] * adj_node[1] < 0:
                 continue
-            if adj_node not in visited_node and _map[adj_node[0]][adj_node[1]] != 1:
+            if adj_node not in visited_node and _map[adj_node[0]][adj_node[1]] in [FOODS, NOTWALL]:
                 adj_f_x = (cur_f_x - cur_h_n) + 1 + h_n(adj_node,des_pos)
                 heappush(min_heap,(adj_f_x,adj_node))
                 visited_node[adj_node] = cur_pos

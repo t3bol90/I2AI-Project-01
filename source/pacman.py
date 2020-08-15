@@ -59,7 +59,7 @@ def main(argv):
 
     import os
     THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-    path = "./random_map/map.txt"
+    path = "../random_map/Maze-15_3.txt"
     if flag[0]:
         input_file = os.path.join(THIS_FOLDER, input_file)
         path = input_file
@@ -95,8 +95,6 @@ def main(argv):
                 graphic.animatePacman(cur,cell,pac)
                 cur = cell
         time.sleep(5)
-
-
 
 
 if __name__ == "__main__":
