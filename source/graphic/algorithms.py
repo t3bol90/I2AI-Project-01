@@ -5,10 +5,12 @@ import types
 from random import *
 from collections import deque
 import operator
+
 FOODS = 2
 MONSTER = 3
 WALL = 1
 NOTWALL = 0
+
 def is_valid(_x,_y,n_col,n_row):
     return _x in range(n_col) and _y in range(n_row)
 def get_vision(_map:list,start_pos:tuple,n_row:int,n_col:int):
@@ -68,7 +70,6 @@ def astar_function(_map:list,start_pos:tuple,des_pos:tuple,n_rol:int,n_col:int):
                 visited_node[adj_node] = cur_pos
     return [],0
 
-
 def create_sup_matrix(main_matrix):
     sup_matrix = main_matrix.copy().T
     for i in range(sup_matrix.shape[0]):
@@ -111,7 +112,7 @@ def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     cen_pos = cal_center(_map)
     traversal , cost = astar_function(_map, pacman_pos , cen_pos, len(_map[1]), len(_map[0]))
-    if(visited_center==True and len(traversal)>1):
+    if(visited_center == True and len(traversal)>1):
         adj_node =  traversal[1]
     else:
         for i in direction:
@@ -119,20 +120,23 @@ def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
             if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] != 1 and visited_map[adj_node[0]][adj_node[1]] == False):
                 visited_map[adj_node[0]][adj_node[1]] = True
                 break
+    for i in visited_map:
+        print(i)
     return adj_node
 
 #Xét có food thì gọi hàm này   
 def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list):
     for i in food:
-            traversal, cost = astar_function(_map,pacman_pos,i,len(_map[1]), len(_map[0]))
-            if(len(traversal) > 1):
-                queue_food.put((cost,i))
+        traversal, cost = astar_function(_map,pacman_pos,i,len(_map[1]), len(_map[0]))
+        if(len(traversal) > 1):
+            queue_food.put((cost,i))
     closest_food = queue_food.queue[0]
     traversal, cost = astar_function(_map,pacman_pos,closest_food[1],len(_map[1]), len(_map[0]))
     if(len(traversal) > 1):
         return traversal[1]
     return None
 
+# Level 4
 #----------------------------------------------------------------------------------------------------------------------
 def monster_pos_minimizing(_map:list,pacman_pos:tuple,monster:tuple):
     path,path_len = astar_function(_map,monster,pacman_pos,len(_map),len(_map[0]))
