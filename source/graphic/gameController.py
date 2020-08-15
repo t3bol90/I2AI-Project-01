@@ -57,7 +57,7 @@ class GameController:
 	def Level3(self):
 		# Turn base
 		visited_map = [[False]* self.height for _ in range(self.width)]
-		while(True):
+		while True :
 			# Pacman turn
 			queue_food = Q.PriorityQueue()
 			__next_move,__vision = self.PacmanTurn(queue_food,visited_map)
