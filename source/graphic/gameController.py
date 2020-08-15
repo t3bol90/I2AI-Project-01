@@ -43,7 +43,7 @@ class GameController:
 			polygon([(0,0), (0, _canvas_ys), (_canvas_xs, _canvas_ys), (_canvas_xs, 0)],_color , fillColor = _color , filled=True, smoothed=False)
 			text(self.graphic.to_screen((0, self.height/2)), formatColor(148.0/255.0,0,211.0/255.0),"OPTIMAL SCORE: " + str(self.graphic.score), "Times", int(0.065*self.width*self.graphic.gridSize), "bold")
 		print("MAX SCORE: ",self.graphic.score)
-		sleep(2)
+		sleep(1)
 		self.graphic.EndGraphics()
 	def Level1_2(self,_level):
 		# Call search stragety for list path
@@ -82,23 +82,36 @@ class GameController:
 		if(_level == 3):
 			__next_move = self.ConvertIndexMaze(self.posGhost[index])
 			if(len(self.movementList[index]) == 0):
-				crossMovement = [[(-1,0),(-1,0),(1,0),(1,0),(1,0),(1,0),(-1,0),(-1,0)],[(0,1),(0,1),(0,-1),(0,-1),(0,-1),(0,-1),(0,1),(0,1)]]
-				squareMovement = [[(-1,0),(0,1),(1,0),(0,-1)],[(-1,0),(0,-1),(1,0),(0,1)]]
-				if(randint(0,1) == 0):
-					# Cross movement
-					if(randint(0,1) == 1):
-						self.movementList[index] = crossMovement[randint(0,1)]
-					else:
-						self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in crossMovement[randint(0,1)]]
-				else:
-					# Square movement
-					if(randint(0,1) == 1):
-						self.movementList[index] = squareMovement[randint(0,1)]
-					else:
-						self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in squareMovement[randint(0,1)]]
+				# crossMovement = [[(-1,0),(-1,0),(1,0),(1,0),(1,0),(1,0),(-1,0),(-1,0)],[(0,1),(0,1),(0,-1),(0,-1),(0,-1),(0,-1),(0,1),(0,1)]]
+				# squareMovement = [[(-1,0),(0,1),(1,0),(0,-1)],[(-1,0),(0,-1),(1,0),(0,1)]]
+				distx = [0,0,1,-1]
+				disty = [1,-1,0,0]
+				combined = list(zip(distx, disty))
+				import random
+				random.shuffle(combined)
+				distx[:],disty[:] = zip(*combined)
+				for dx,dy in zip(distx,disty):
+					x = __next_move[0] + dx
+					y = __next_move[1] + dy
+					if x in range(self.height) and y in range(self.width) and self.maze[(x,y)] not in [1,2]:
+						self.movementList[index].append((dx,dy))
+						self.movementList[index].append((-dx,-dy))
+
+				# if(randint(0,1) == 0):
+				# 	# Cross movement
+				# 	if(randint(0,1) == 1):
+				# 		self.movementList[index] = crossMovement[randint(0,1)]
+				# 	else:
+				# 		self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in crossMovement[randint(0,1)]]
+				# else:
+				# 	# Square movement
+				# 	if(randint(0,1) == 1):
+				# 		self.movementList[index] = squareMovement[randint(0,1)]
+				# 	else:
+				# 		self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in squareMovement[randint(0,1)]]
 			while(True):
 				__next_move = tuple(map(operator.add, __next_move , self.movementList[index].pop(0)))
-				if(__next_move[0] < self.height and __next_move[1] < self.width and self.maze[__next_move] != 1):
+				if(__next_move[0] in range(self.height) and __next_move[1] in range (self.width) and self.maze[__next_move] != 1):
 					break
 		else:
 			travelsal,cost = astar_function(self.maze,self.ConvertIndexMaze(self.posGhost[index]),self.ConvertIndexMaze(self.posPacman),self.height,self.width)
