@@ -39,11 +39,13 @@ def generate_map(n_rol,n_col,n_food,n_monster,max_length_wall,num_wall):
     return _map,pacman
 
 
-# n_rol = 15
-# n_col = 15
-# n_food = 1
-# n_monster = 0
-n_rol,n_col,n_food,n_monster,max_length_wall,num_wall = list(map(int,input().split()))
+n_rol = 15
+n_col = 30
+n_food = 1
+n_monster = 0
+max_length_wall = 5
+num_wall = 20
+#n_rol,n_col,n_food,n_monster,max_length_wall,num_wall = list(map(int,input().split()))
 _map,pacman = generate_map(n_col,n_rol,n_food,n_monster,max_length_wall,num_wall)
 h = f'{n_rol} {n_col}'
 f = f'{pacman[0]} {pacman[1]}'
