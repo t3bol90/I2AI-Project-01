@@ -62,7 +62,7 @@ def astar_function(_map:list,start_pos:tuple,des_pos:tuple,n_rol:int,n_col:int):
         adj_node = ()
         for i in direction: 
             adj_node = ((cur_pos[0] + i[0]),(cur_pos[1] + i[1]))
-            if adj_node[0] == n_rol or adj_node[1] == n_col or adj_node[0] * adj_node[1] < 0:
+            if adj_node[0] not in range (n_rol) or adj_node[1] not in range (n_col):
                 continue
             if adj_node not in visited_node and _map[adj_node[0]][adj_node[1]] in [FOODS, NOTWALL]:
                 adj_f_x = (cur_f_x - cur_h_n) + 1 + h_n(adj_node,des_pos)
@@ -108,32 +108,46 @@ def cal_center(_map: list):
 #Xét food ko có trong vision thì gọi hàm này
 def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
     visited_map[pacman_pos[0]][pacman_pos[1]] = True
-    adj_node = (0,0)
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     cen_pos = cal_center(_map)
-    traversal , cost = astar_function(_map, pacman_pos , cen_pos, len(_map[1]), len(_map[0]))
-    if(visited_center == True and len(traversal)>1):
-        adj_node =  traversal[1]
-    else:
-        for i in direction:
-            adj_node = ((pacman_pos[0] + i[0]),(pacman_pos[1] + i[1]))
-            if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] != 1 and visited_map[adj_node[0]][adj_node[1]] == False):
-                visited_map[adj_node[0]][adj_node[1]] = True
-                break
-    for i in visited_map:
-        print(i)
+    # traversal , cost = astar_function(_map, pacman_pos , cen_pos, len(_map[1]), len(_map[0]))
+    # if(visited_center == True and len(traversal)>1):
+    #     adj_node =  traversal[1]
+    # else:
+    #     for i in direction:
+    #         adj_node = ((pacman_pos[0] + i[0]),(pacman_pos[1] + i[1]))
+    #         if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] not in [1,3] and visited_map[adj_node[0]][adj_node[1]] == False):
+    #             visited_map[adj_node[0]][adj_node[1]] = True
+    #             break
+    possible_move = []
+    for dx, dy in direction:
+        x = pacman_pos[0] + dx
+        y = pacman_pos[1] + dy
+        if x in range(len(_map[0])) and y in range(len(_map)) and _map[x][y] not in [1,3] and not visited_map[x][y]:
+            possible_move.append((h_n((x,y),cen_pos),(x,y)))
+    possible_move.sort()
+    if possible_move:
+        adj_node = possible_move[0][1]
+    else: adj_node = None
+    # for i in visited_map:
+    #     print(i)
     return adj_node
 
 #Xét có food thì gọi hàm này   
 def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list):
     for i in food:
-        traversal, cost = astar_function(_map,pacman_pos,i,len(_map[1]), len(_map[0]))
+        if i in [tup[1] for tup in queue_food.queue]:
+            continue
+        traversal, cost = astar_function(_map,pacman_pos,i,len(_map[0]), len(_map))
         if(len(traversal) > 1):
             queue_food.put((cost,i))
     closest_food = queue_food.queue[0]
-    traversal, cost = astar_function(_map,pacman_pos,closest_food[1],len(_map[1]), len(_map[0]))
+    print("Is going to", closest_food)
+    traversal, cost = astar_function(_map,pacman_pos,closest_food[1],len(_map[0]), len(_map))
+    print("Path: ", traversal)
     if(len(traversal) > 1):
         return traversal[1]
+    
     return None
 
 # Level 4

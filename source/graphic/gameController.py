@@ -135,12 +135,12 @@ class GameController:
 		elif(len(foods) >= 1 or not queue_food.empty()):
 			# Case 2,3, has foods
 			__next_move = cal_pos(self.maze,self.ConvertIndexMaze(self.posPacman),queue_food,foods)
-			print(__next_move)
-			if(__next_move is not None and __next_move == queue_food.queue[0]):
+			print("NextMove",__next_move)
+			if(__next_move == queue_food.queue[0][1]):
 				top = queue_food.get()
-				while (top == queue_food.queue[0]):
+				while not queue_food.empty() and top == queue_food.queue[0][1]:
 					queue_food.get()
-				print(top)
+				print("Food is remove out of queue:", top)
 			elif(__next_move is None):
 				__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),False,visited_map)
 		else:
