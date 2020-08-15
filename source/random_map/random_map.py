@@ -49,5 +49,5 @@ num_wall = 20
 _map,pacman = generate_map(n_col,n_rol,n_food,n_monster,max_length_wall,num_wall)
 h = f'{n_rol} {n_col}'
 f = f'{pacman[0]} {pacman[1]}'
-np.savetxt('map3.txt',_map,header = h,footer = f,fmt='%.0f',comments= '')
+np.savetxt('map9.txt',_map,header = h,footer = f,fmt='%.0f',comments= '')
 
