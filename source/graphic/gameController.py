@@ -1,8 +1,6 @@
 from pacmanGraphics import *
-from random import *
 from graphicsUtils import *
 from algorithms import *
-import operator
 
 class GameController:
 	def __init__(self,maze,posPacman):
@@ -17,6 +15,7 @@ class GameController:
 		self.isLose = False
 		self.ghost = []
 		self.movementList = [ [] for i in range(len(self.posGhost))]
+		self.effort = 0
 	def StartGame(self,_level = 1):
 		self.graphic.Initialize(self.width,self.height)
 		self.graphic.DrawWalls(self.walls)
@@ -57,16 +56,16 @@ class GameController:
 					self.AgentMove(i,0,True)
 	def Level3(self):
 		# Turn base
+		visited_map = [[False]* self.height for _ in range(self.width)]
 		while(True):
 			# Pacman turn
 			queue_food = Q.PriorityQueue()
-			__next_move,__vision,foods,ghost = self.PacmanTurn(queue_food)
+			__next_move,__vision = self.PacmanTurn(queue_food,visited_map)
+			if(__next_move is None):
+				return
 			self.AgentMove(__next_move,0,True)
 			# Draw Aura
-			temp = []
-			for i in __vision:
-				temp.append(self.ConvertIndexGraphic(i))
-			__auraImg = self.graphic.DrawAura(temp)
+			__auraImg = self.graphic.DrawAura([self.ConvertIndexGraphic(i) for i in __vision])
 			# Check is end game?
 			if(self.IsEndGame() == True):
 				return
@@ -112,21 +111,31 @@ class GameController:
 				self.isLose = True
 				return True
 		return False
-	def PacmanTurn(self,queue_food):
+	def PacmanTurn(self,queue_food,visited_map):
 		__vision,foods,ghost = get_vision(self.maze,self.ConvertIndexMaze(self.posPacman),self.height,self.width)
 		__next_move = self.ConvertIndexMaze(self.posPacman)
 		if(len(ghost) > 0):
 			# Case 4, minimax
-			pass
-		elif(len(foods) >= 1):
+			__next_move,estimatedScore = cal_monster_with_minimax(self.maze,self.ConvertIndexMaze(self.posPacman),foods,ghost)
+			print(estimatedScore)
+			if(estimatedScore < -1000):
+				__next_move = None
+		elif(len(foods) >= 1 or not queue_food.empty()):
 			# Case 2,3, has foods
 			__next_move = cal_pos(self.maze,self.ConvertIndexMaze(self.posPacman),queue_food,foods)
-			pass
+			print(__next_move)
+			if(__next_move is not None and __next_move == queue_food.queue[0]):
+				print(queue_food.get())
+			elif(__next_move is None):
+				__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True,visited_map)
 		else:
 			# Case 1
-			__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True)
+			__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True,visited_map)
+		if(__next_move is None):
+			return None,None
 		__vision,foods,ghost = get_vision(self.maze,__next_move,self.height,self.width)
-		return __next_move,__vision,foods,ghost
+		update_dis_to_food(queue_food,__next_move)
+		return __next_move,__vision
 	def AgentMove(self,pos,index,isPacman = True):
 		pos = self.ConvertIndexGraphic(pos)
 		if(isPacman):
@@ -137,6 +146,7 @@ class GameController:
 				self.graphic.RemoveFood(pos,self.foods)
 				scoreBonus = 20
 				self.foods[pos] = None
+				self.maze[self.ConvertIndexMaze(pos)] = 0
 			self.graphic.UpdateScore(scoreBonus)
 		else:
 			self.graphic.AnimateGhost(self.posGhost[index],pos,index,self.ghost[index])

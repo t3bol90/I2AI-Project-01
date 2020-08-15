@@ -165,7 +165,7 @@ class PacmanGraphics:
     refresh()
 
   def AnimatePacman(self, posPrevPacman,posPacman, image):
-    self.frameTime = 0.5
+    self.frameTime = 0.25
     if self.frameTime > 0.01 or self.frameTime < 0:
       start = time.time()
       fx, fy = posPrevPacman[0],posPrevPacman[1]

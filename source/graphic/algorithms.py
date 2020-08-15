@@ -2,7 +2,9 @@ import numpy as np
 from queue import heappop,heappush
 import queue as Q
 import types
+from random import *
 from collections import deque
+import operator
 
 def is_valid(_x,_y,n_col,n_row):
     return _x in range(n_col) and _y in range(n_row)
@@ -100,7 +102,8 @@ def cal_center(_map: list):
     return (len(_map[0])//2,len(_map[1])//2)
 
 #Xét food ko có trong vision thì gọi hàm này
-def cal_pos_nothing(_map,pacman_pos : tuple, visited_center):
+def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
+    visited_map[pacman_pos[0]][pacman_pos[1]] = True
     adj_node = (0,0)
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     cen_pos = cal_center(_map)
@@ -110,58 +113,111 @@ def cal_pos_nothing(_map,pacman_pos : tuple, visited_center):
     else:
         for i in direction:
             adj_node = ((pacman_pos[0] + i[0]),(pacman_pos[1] + i[1]))
-            if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] != 1 ): 
+            if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] != 1 and visited_map[adj_node[0]][adj_node[1]] == False):
+                visited_map[adj_node[0]][adj_node[1]] = True
                 break
     return adj_node
-
 
 #Xét có food thì gọi hàm này   
 def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list):
     for i in food:
-        cost = h_n(pacman_pos,i)
-        queue_food.put((cost,i))
-    
-    closest_food = queue_food.queue[0]  
+            traversal, cost = astar_function(_map,pacman_pos,i,len(_map[1]), len(_map[0]))
+            if(len(traversal) > 1):
+                queue_food.put((cost,i))
+    closest_food = queue_food.queue[0]
     traversal, cost = astar_function(_map,pacman_pos,closest_food[1],len(_map[1]), len(_map[0]))
-    return traversal[1]  
+    if(len(traversal) > 1):
+        return traversal[1]
+    return None
 
-# monster đi random -> các vị trí có thể của monster
-def monster_move(monste_pos):
-    direction = [(1,0),(0,1),(-1,0),(0,-1)]
-    invalid_pos = [((m[0] + d[0]),(m[1] + d[1])) for m in monste_pos for d in direction]
-    return invalid_pos
+#----------------------------------------------------------------------------------------------------------------------
+def monster_pos_minimizing(_map:list,pacman_pos:tuple,monster:tuple):
+    path,path_len = astar_function(_map,monster,pacman_pos,len(_map),len(_map[0]))
+    if path_len < 2:
+        return monster
+    monster_move = path[1]
+    return monster_move
 
-# nếu có monster trong vision
-def cal_monster(_map,pacman_pos,queue_food,monster,visited_center):
-    direction = [(1,0),(0,1),(-1,0),(0,-1)]
-    valid_pos = []
-    notsafe_pos = monster_move(monster)
-    for d in direction:
-        move = ((pacman_pos[0] + d[0]),(pacman_pos[1] + d[1]))
-        if move in notsafe_pos:
-            continue
-        valid_pos.append(move)
-    if len(valid_pos) == 0:
-        d = direction[random.randint(0,3)]
-        return ((pacman_pos[0] + d[0]),(pacman_pos[1] + d[1]))
-        
-    if not queue_food.empty():
-        next_pos = cal_pos(_map,pacman_pos,queue_food,food)
-        if next_pos not in valid_pos:
-            cos_valid_pos = [h_n(adj_pos,queue_food.queue[0][1]) for adj_pos in valid_pos]
-            for i in range(len(cos_valid_pos)):
-                if cos_valid_pos[i] == min(cos_valid_pos):
-                    next_pos = valid_pos[i]
-                    break
+def evaluationFunction(_map,pacman_pos,monster,food:list):
+    if pacman_pos in monster:
+        return -1000000
+    if pacman_pos in food:
+        food.remove(pacman_pos)
+        return 20
     else:
-        next_pos = cal_pos_nothing(_map,pacman_pos,visited_center)
-        if next_pos not in valid_pos:
-            center = cal_center(_map)
-            cos_valid_pos = [h_n(adj_pos,center) for adj_pos in valid_pos]
-            for i in range(len(cos_valid_pos)):
-                if cos_valid_pos[i] == min(cos_valid_pos):
-                    next_pos = valid_pos[i]
-                    break 
-    return next_pos
+        return -1
 
+def getValidMove(agent,_map):
+    direction = [(1,0),(0,1),(-1,0),(0,-1)]
+    validPos = []
+    for d in direction:
+        move = (agent[0] + d[0],agent[1] + d[1])
+        if (is_valid(move[0],move[1],len(_map[0]),len(_map)) and _map[move[0]][move[1]] != 1):
+            validPos.append(move)
+    return validPos
+    
+
+def minimax(_map,depth,food,agents,agents_index = 0,State_Value = 0,isPacmanTurn = True):
+    if depth == 0:
+        return State_Value,()
+
+    # pac_man turn
+    if isPacmanTurn:
+        pacman_moves = getValidMove(agents[0],_map) # all move possible of pacman_move
+        scores = []
+        next_state = agents.copy()
+        for move in pacman_moves:
+            next_state[0] = move # update state
+            scores.append(minimax(_map,depth - 1,food,next_state,1,State_Value + evaluationFunction(_map,next_state[0],next_state[1:],food),False)[0]) # best scores of each move 
+        #  get best of best-list scores 
+        bestScore = max(scores)
+        bestScore_Index = [score_index for score_index in range(len(scores)) if scores[score_index] == bestScore]
+        next_move = pacman_moves[bestScore_Index[randint(0,len(bestScore_Index) - 1)]]
+        return bestScore,next_move
+    #monster turn 
+    else:
+        monster_move = monster_pos_minimizing(_map,agents[0],agents[agents_index]) # monster move, use a star to get minimum-score move
+
+        if monster_move == agents[0]: # meet mr.pacman
+            State_Value += -1000000
+
+        next_state = agents.copy()
+        if agents_index == len(agents) - 1: # if out out monster -> depth - 1
+            next_state[agents_index] = monster_move  # update state
+            min_score = minimax(_map,depth - 1,food,next_state,0,State_Value,True)[0]
+        else:
+            next_state[agents_index] = monster_move # update state
+            min_score = minimax(_map,depth,food,next_state,agents_index + 1,State_Value,False)[0]
+
+
+        return min_score, monster_move
+
+def cal_monster_with_minimax(_map,pacman_pos,queue_food,monster):
+    agents = monster
+    agents.insert(0,pacman_pos) # all agents, pac_man in index = 0 for default
+    depth = 6
+    score,next_move = minimax(_map,depth,queue_food,agents,agents_index=0,State_Value=0,isPacmanTurn=True)
+    return next_move,score
+
+#- --------------------------------------------------------------------------------------------------------------------------
+
+#def my_cal_pos_nothing(maze,pacman_pos : tuple,effortToCenter):
+#    dir = np.array([(1,0),(0,1),(-1,0),(0,-1)])
+#    dir += pacman_pos
+#    __validMove = []
+#    for i in range(4):
+#        if(is_valid(dir[i][0],dir[i][1],len(maze[0]),len(maze)) and maze[dir[i][0],dir[i][1]] != 1):
+#            __validMove.append(i)
+#    if not __validMove:
+#        return None
+#    dir = dir[__validMove]
+#    center = tuple(map(operator.add,cal_center(maze),(randint(-1,1),randint(-1,1))))
+#    traversal , cost = astar_function(maze, pacman_pos , center, len(maze), len(maze[0]))
+#    __bound = 5
+#    if(effortToCenter < __bound and len(traversal) > 1):
+#        __next_move =  traversal[1]
+#    else:
+#        effortToCenter += 1
+#        __next_move = dir[randint(0,len(dir)-1)]
+#    return tuple(__next_move),effortToCenter
 
