@@ -57,9 +57,8 @@ class GameController:
 	def Level3(self):
 		# Turn base
 		visited_map = [[False]* self.height for _ in range(self.width)]
+		queue_food = Q.PriorityQueue()
 		while True :
-			# Pacman turn
-			queue_food = Q.PriorityQueue()
 			__next_move,__vision = self.PacmanTurn(queue_food,visited_map)
 			if(__next_move is None):
 				return
@@ -125,14 +124,18 @@ class GameController:
 			__next_move = cal_pos(self.maze,self.ConvertIndexMaze(self.posPacman),queue_food,foods)
 			print(__next_move)
 			if(__next_move is not None and __next_move == queue_food.queue[0]):
-				print(queue_food.get())
+				top = queue_food.get()
+				while (top == queue_food.queue[0]):
+					queue_food.get()
+				print(top)
 			elif(__next_move is None):
-				__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True,visited_map)
+				__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),False,visited_map)
 		else:
 			# Case 1
-			__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),True,visited_map)
+			__next_move = cal_pos_nothing(self.maze,self.ConvertIndexMaze(self.posPacman),False,visited_map)
 		if(__next_move is None):
 			return None,None
+
 		__vision,foods,ghost = get_vision(self.maze,__next_move,self.height,self.width)
 		update_dis_to_food(queue_food,__next_move)
 		return __next_move,__vision

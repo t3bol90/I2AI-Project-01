@@ -49,7 +49,7 @@ def main(argv):
 
     import os
     THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-    path = "../random_map/Maze-15_3.txt"
+    path = "D:/Maze-15_3.txt"
     if flag[0]:
         input_file = os.path.join(THIS_FOLDER, input_file)
         path = input_file
