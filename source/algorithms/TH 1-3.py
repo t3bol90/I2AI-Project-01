@@ -48,17 +48,19 @@ def cal_center(_map: list):
     return (len(_map[0])//2,len(_map[1])//2)
 
 #Xét food ko có trong vision thì gọi hàm này
-def cal_pos_nothing(_map,pacman_pos : tuple, visited_center):
+def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
+    visited_map[pacman_pos[0]][pacman_pos[1]] = True
     adj_node = (0,0)
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
     cen_pos = cal_center(_map)
     traversal , cost = astar_function(_map, pacman_pos , cen_pos, len(_map[1]), len(_map[0]))
-    if(visited_center==True):
+    if(visited_center==True or len(traversal)>1):
         adj_node =  traversal[1]
     else:
         for i in direction:
             adj_node = ((pacman_pos[0] + i[0]),(pacman_pos[1] + i[1]))
-            if _map[adj_node[0]][adj_node[1]] != 1 : 
+            if(is_valid(adj_node[0],adj_node[1],len(_map[0]),len(_map)) and _map[adj_node[0]][adj_node[1]] != 1 and visited_map[adj_node[0]][adj_node[1]] == False):
+                visited_map[adj_node[0]][adj_node[1]] = True
                 break
     return adj_node
 
@@ -75,10 +77,10 @@ def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list)
 
 
 if __name__ == '__main__':
-    start_pos = (3,11)
+    start_pos = (14,0)
     # des_pos = (14,14)
     
-    _map = [[1, 1, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 0, 0, 0],
+    _map = [[1, 1, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0],
             [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
@@ -92,26 +94,69 @@ if __name__ == '__main__':
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0],
-            [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]]
-
+            [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]]
+    visited_map = [[False]* len(_map[1]) for _ in range(len(_map[0]))]
     visited_center=True
     cen_pos = cal_center(_map)
     ans,food,monster= get_vision(_map,start_pos,15,15)
     queue_food = Q.PriorityQueue()
-    queue_food.put((6,(0,8)))
     next_move = (0,0)
     if(len(food)==0):
-        next_move = cal_pos_nothing(_map,start_pos,visited_center)
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
     else:
         next_move = cal_pos(_map,start_pos,queue_food,food)
         
     print(next_move)
     start_pos = next_move
     update_dis_to_food(queue_food,start_pos)    
-    print(queue_food.queue[0])
     
+    
+    if(len(food)==0):
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
+    else:
+        next_move = cal_pos(_map,start_pos,queue_food,food)
+        
+    print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)    
+    
+    
+    if(len(food)==0):
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
+    else:
+        next_move = cal_pos(_map,start_pos,queue_food,food)
+        
+    print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)    
+
    
+    if(len(food)==0):
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
+    else:
+        next_move = cal_pos(_map,start_pos,queue_food,food)
+        
+    print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)      
     
+    if(len(food)==0):
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
+    else:
+        next_move = cal_pos(_map,start_pos,queue_food,food)
+        
+    print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)    
+    
+    if(len(food)==0):
+        next_move = cal_pos_nothing(_map,start_pos,visited_center,visited_map)
+    else:
+        next_move = cal_pos(_map,start_pos,queue_food,food)
+        
+    print(next_move)
+    start_pos = next_move
+    update_dis_to_food(queue_food,start_pos)    
     
     
     
