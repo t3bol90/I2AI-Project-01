@@ -221,31 +221,47 @@ def cal_monster_with_minimax(_map,pacman_pos,queue_food,monster,frequency):
     agents.insert(0,pacman_pos) # all agents, pac_man in index = 0 for default
     depth = 4
     score,next_move = minimax(_map,depth,queue_food,agents,agents_index=0,State_Value=0,isPacmanTurn=True)
-    pq = []
-    for i in range(len(next_move)):
-        pq.append((frequency[next_move[i][0]][next_move[i][1]],next_move[i]))
-    pq.sort()
-    return pq[0][1],score
+    print("Current position: ",pacman_pos)
+    print(next_move)
+    # Nếu nhiều hơn 3 monster chọn bước đi xa monster nhất, có thể bỏ food
+    _best_move = None
+    # or len(queue_food) > 0 and len(monster) > len(queue_food)
+    if(len(monster) >= 3):
+        _sumMaxDist = -10000000
+        for i in next_move:
+            _maxdistance = 0
+            for j in monster:
+                temp = (i[0]-j[0],i[1]-j[1])
+                _maxdistance += np.linalg.norm(temp)
+            if(_maxdistance > _sumMaxDist):
+                _sumMaxDist = _maxdistance
+                _best_move = i
+    # Có foods
+    elif(len(queue_food) > 0):
+        _sumMinDist = 10000000
+        _minDist = 10000000
+        for i in next_move:
+            _sumMinDistance = 0
+            _minDistance = 10000000
+            for j in queue_food:
+                temp = (i[0]-j[0],i[1]-j[1])
+                temp = np.linalg.norm(temp)
+                if(temp < _minDistance):
+                    _minDistance = temp
+                _sumMinDistance += temp
+            if(_sumMinDistance <= _sumMinDist and _minDistance < _minDist):
+                _sumMinDist = _sumMinDistance
+                _minDist = _minDistance
+                _best_move = i
+    print("Best_move: ", _best_move)
+    if(_best_move is None):
+        pq = []
+        for i in range(len(next_move)):
+            pq.append((frequency[next_move[i][0]][next_move[i][1]],next_move[i]))
+        pq.sort()
+        _best_move = pq[0][1]
+    return _best_move,score
 
 #- --------------------------------------------------------------------------------------------------------------------------
 
-#def my_cal_pos_nothing(maze,pacman_pos : tuple,effortToCenter):
-#    dir = np.array([(1,0),(0,1),(-1,0),(0,-1)])
-#    dir += pacman_pos
-#    __validMove = []
-#    for i in range(4):
-#        if(is_valid(dir[i][0],dir[i][1],len(maze[0]),len(maze)) and maze[dir[i][0],dir[i][1]] != 1):
-#            __validMove.append(i)
-#    if not __validMove:
-#        return None
-#    dir = dir[__validMove]
-#    center = tuple(map(operator.add,cal_center(maze),(randint(-1,1),randint(-1,1))))
-#    traversal , cost = astar_function(maze, pacman_pos , center, len(maze), len(maze[0]))
-#    __bound = 5
-#    if(effortToCenter < __bound and len(traversal) > 1):
-#        __next_move =  traversal[1]
-#    else:
-#        effortToCenter += 1
-#        __next_move = dir[randint(0,len(dir)-1)]
-#    return tuple(__next_move),effortToCenter
 
