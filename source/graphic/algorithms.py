@@ -104,13 +104,25 @@ def update_dis_to_food(queue_food : Q.PriorityQueue, pacman_pos):
 #tính trung tâm của map
 def cal_center(_map: list):
     return (len(_map[0])//2,len(_map[1])//2)
+def cal_conner(_map: list):
+    h = len(_map)
+    w = len(_map[0])
+    conner = [(0,0),(h-1,w-1),(h-1,0),(0,w-1)]
+    return conner
+
+
 
 #Xét food ko có trong vision thì gọi hàm này
 def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
     VISITED_LIMIT = 1
     visited_map[pacman_pos[0]][pacman_pos[1]] += 1 
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
-    cen_pos = cal_center(_map)
+    possible_center = cal_conner(_map)
+    possible_center.append(cal_center(_map))
+    pq = [(h_n(pacman_pos,center),center) for center in possible_center]
+    pq.sort(reverse=True)
+    print(pq)
+    cen_pos = pq[0][1]
     possible_move = []
     for dx, dy in direction:
         x = pacman_pos[0] + dx
