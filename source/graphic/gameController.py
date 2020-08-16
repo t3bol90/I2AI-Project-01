@@ -129,7 +129,7 @@ class GameController:
 		return False
 
 	def PacmanTurn(self, queue_food, visited_map,frequency):
-		LANGTHANG_LIMIT = max(self.height, self.width) + min(self.height, self.width)//2
+		LANGTHANG_LIMIT = (max(self.height, self.width) + min(self.height, self.width)//2) if (max(self.height, self.width) < 20) else (self.height*self.width)//2
 		__vision, foods, ghost = get_vision(self.maze, self.ConvertIndexMaze(self.posPacman), self.height, self.width)
 		__next_move = self.ConvertIndexMaze(self.posPacman)
 
