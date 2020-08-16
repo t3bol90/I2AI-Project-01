@@ -32,11 +32,11 @@ def main(argv):
         opts, args = getopt.getopt(
             argv, "hi:o:l:", ["ifile=", "ofile=", "level="])
     except getopt.GetoptError:
-        print('pacman.py -i <input_file> -o <output_file>')
+        print('main.py -i <input_file> -l <level>')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('pacman.py -i <input_file> -l <level>')
+            print('main.py -i <input_file> -l <level>')
             sys.exit()
         elif opt in ("-i", "--ifile"):
             input_file = arg
