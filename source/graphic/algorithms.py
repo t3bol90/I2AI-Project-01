@@ -104,13 +104,22 @@ def update_dis_to_food(queue_food : Q.PriorityQueue, pacman_pos):
 #tính trung tâm của map
 def cal_center(_map: list):
     return (len(_map[0])//2,len(_map[1])//2)
+def cal_conner(_map):
+    h = len(_map)
+    w = len(_map[0])
+    conner = [(0,0),(h-1,w-1),(h-1,0),(0,w-1)]
+    return conner
 
 #Xét food ko có trong vision thì gọi hàm này
 def cal_pos_nothing(_map,pacman_pos : tuple, visited_center, visited_map):
     VISITED_LIMIT = 1
     visited_map[pacman_pos[0]][pacman_pos[1]] += 1 
     direction = [(1,0),(0,1),(-1,0),(0,-1)]
-    cen_pos = cal_center(_map)
+    possible_center = cal_conner(_map)
+    possible_center.append(cal_center(_map))
+    pq = [(h_n(pacman_pos,center),center) for center in possible_center]
+    pq.sort(reverse=True)
+    cen_pos = pq[0][1]
     possible_move = []
     for dx, dy in direction:
         x = pacman_pos[0] + dx
@@ -133,9 +142,7 @@ def cal_pos(_map, pacman_pos : tuple, queue_food : Q.PriorityQueue, food : list)
         if(len(traversal) > 1):
             queue_food.put((cost,i))
     closest_food = queue_food.queue[0]
-    print("Is going to", closest_food)
     traversal, cost = astar_function(_map,pacman_pos,closest_food[1],len(_map[0]), len(_map))
-    print("Path: ", traversal)
     if(len(traversal) > 1):
         return traversal[1]
     
@@ -209,8 +216,6 @@ def cal_monster_with_minimax(_map,pacman_pos,queue_food,monster,frequency):
     agents.insert(0,pacman_pos) # all agents, pac_man in index = 0 for default
     depth = 4
     score,next_move = minimax(_map,depth,queue_food,agents,agents_index=0,State_Value=0,isPacmanTurn=True)
-    print("Current position: ",pacman_pos)
-    print(next_move)
     # Nếu nhiều hơn 3 monster chọn bước đi xa monster nhất, có thể bỏ food
     _best_move = None
     # or len(queue_food) > 0 and len(monster) > len(queue_food)
@@ -241,7 +246,6 @@ def cal_monster_with_minimax(_map,pacman_pos,queue_food,monster,frequency):
                 _sumMinDist = _sumMinDistance
                 _minDist = _minDistance
                 _best_move = i
-    print("Best_move: ", _best_move)
     if(_best_move is None):
         pq = []
         for i in range(len(next_move)):

@@ -165,7 +165,7 @@ class PacmanGraphics:
     refresh()
 
   def AnimatePacman(self, posPrevPacman,posPacman, image):
-    self.frameTime = 0.125
+    self.frameTime = 0.05
     if self.frameTime > 0.01 or self.frameTime < 0:
       start = time.time()
       fx, fy = posPrevPacman[0],posPrevPacman[1]
@@ -241,7 +241,7 @@ class PacmanGraphics:
   def AnimateGhost(self, posPrevGhost, posGhost, ghostIndex, ghostImageParts):
     old_x, old_y = posPrevGhost[0],posPrevGhost[1]
     new_x, new_y = posGhost[0],posGhost[1]
-    self.frameTime = 0.125
+    self.frameTime = 0.05
     start = time.time()
     frames = 1.0
     for i in range(1,int(frames) + 1):
