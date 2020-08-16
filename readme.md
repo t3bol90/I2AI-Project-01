@@ -56,3 +56,23 @@ Link để edit mớ lộn xộn này: https://hackmd.io/dJar_epXS6a1yA0qzpjnuQ
 
 
 **Chúc mọi người một ngày vui vẻ.**
+
+
+
+In three weeks
+|      |      |      |      |
+| ---- | ---- | ---- | ---- |
+|      |      |      |      |
+| :-:  | :-:  | :-:  | :-:  |
+| ---- | ---- | ---- | ---- |
+|      |      |      |      |
+|      |      |      |      |
+| ---- | ---- | ---- | ---- |
+|      |      |      |      |
+
+| Week      | Week 1                                                     | Week 2                                                       | Week 3                                                       |
+| --------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Team plan | Looking solution for level 1 & 2<br>Simple Graphic display | Done level 1 & 2, apply level 1 & 2 to graphic display<br>Looking solution for level 3 & 4 | Apply level 3 & 4 to graphic<br>Generate random map to testing and fix bug |
+
+
+
