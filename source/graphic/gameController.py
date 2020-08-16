@@ -17,7 +17,6 @@ class GameController:
 		self.ghost = []
 		self.movementList = [[] for i in range(len(self.posGhost))]
 		self.effort = 0
-		self.explored_node =  [[False] * self.height for _ in range(self.width)]
 
 	def StartGame(self, _level=1):
 		self.graphic.Initialize(self.width, self.height)
@@ -50,12 +49,7 @@ class GameController:
 			        _color, fillColor=_color, filled=True, smoothed=False)
 			text(self.graphic.to_screen((0, self.height/2)), formatColor(148.0/255.0, 0, 211.0/255.0),
 			     "OPTIMAL SCORE: " + str(self.graphic.score), "Times", int(0.065*self.width*self.graphic.gridSize), "bold")
-		explored = 0
-		for line in self.explored_node:		 
-			for node in line:
-				explored += 1 if node else 0
 		print("MAX SCORE: ", self.graphic.score)
-		print("EXPLORED NODEL: ", explored)
 		sleep(1)
 		self.graphic.EndGraphics()
 
@@ -66,17 +60,15 @@ class GameController:
 		if(len(__foodsPosition) != 0):
 			travelsal, cost = astar_function(self.maze, self.ConvertIndexMaze(
 				self.posPacman), self.ConvertIndexMaze(__foodsPosition[0]), self.height, self.width)
-			for node in travelsal:
-				self.explored_node[node[0]][node[1]] = True
 			if(cost < 20):
 				for i in travelsal:
 					self.AgentMove(i, 0, True)
 
 	def Level3_4(self,_level):
 		# Turn base
-		visited_map = [[0] * self.height for _ in range(self.width)]
+		visited_map = [[0] *self.width  for _ in range(self.height)]
 		queue_food = Q.PriorityQueue()
-		frequency = [[0] * self.height for _ in range(self.width)]
+		frequency = [[0] * self.width for _ in range(self.height)]
 
 		while True:
 			__next_move, __vision = self.PacmanTurn(queue_food, visited_map,frequency)
@@ -137,11 +129,9 @@ class GameController:
 		return False
 
 	def PacmanTurn(self, queue_food, visited_map,frequency):
-		LANGTHANG_LIMIT = (max(self.height, self.width) + min(self.height, self.width)//2) if (max(self.height, self.width) < 20) else (self.height*self.width)//2
+		LANGTHANG_LIMIT = min(self.height, self.width) + max(self.height, self.width)//2
 		__vision, foods, ghost = get_vision(self.maze, self.ConvertIndexMaze(self.posPacman), self.height, self.width)
 		__next_move = self.ConvertIndexMaze(self.posPacman)
-		for node in __vision:
-			self.explored_node[node[0]][node[1]] = True
 
 		if(len(ghost) > 0):
 			# Case 4, minimax
@@ -153,15 +143,15 @@ class GameController:
 				top = queue_food.get()
 				while not queue_food.empty() and top == queue_food.queue[0][1]:
 					queue_food.get()
-				# print("Food is remove out of queue:", top)
-				# print("Foods:", foods)
+				print("Food is remove out of queue:", top)
+				print("Foods:", foods)
 				# sleep(1)
 			# Test
 			frequency[__next_move[0]][__next_move[1]] += 1
-			# print("FRE:", frequency[__next_move[0]][__next_move[1]])
+			print("FRE:", frequency[__next_move[0]][__next_move[1]])
 			if (frequency[__next_move[0]][__next_move[1]] > 4):
 				return None,None
-			# print(estimatedScore)
+			print(estimatedScore)
 			if(estimatedScore < -1000):
 				__next_move = None
 		elif(len(foods) >= 1 or not queue_food.empty()):
@@ -171,13 +161,13 @@ class GameController:
 			# 	visited_map[i][j] = 0
 			__next_move = cal_pos(self.maze, self.ConvertIndexMaze(
 				self.posPacman), queue_food, foods)
-			# print("NextMove", __next_move)
+			print("NextMove", __next_move)
 			if(not queue_food.empty() and __next_move == queue_food.queue[0][1]):
 				top = queue_food.get()
 				while not queue_food.empty() and top == queue_food.queue[0][1]:
 					queue_food.get()
-				# print("Food is remove out of queue:", top)
-				# print("Foods:", foods)
+				print("Food is remove out of queue:", top)
+				print("Foods:", foods)
 				# sleep(1)
 			elif(__next_move is None):
 				__next_move = cal_pos_nothing(
@@ -190,7 +180,7 @@ class GameController:
 			for i in visited_map:
 				for j in i:
 					visited_value += 1 if j else 0
-			# print("Visited: ", visited_value)
+			print("Visited: ", visited_value)
 			if visited_value >= LANGTHANG_LIMIT:
 				return None, None
 		if(__next_move is None):
