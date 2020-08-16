@@ -34,10 +34,8 @@ class GameController:
 			create_sup_matrix_food(create_sup_matrix(self.maze))))
 		if(_level == 1 or _level == 2):
 			self.Level1_2(_level)
-		elif(_level == 3):
-			self.Level3()
-		elif(_level == 4):
-			pass
+		elif(_level == 3 or _level == 4):
+			self.Level3_4(_level)
 		sleep(1)
 		if(self.isLose):
 			text(self.graphic.to_screen((0, self.height/2)), formatColor(255.0/255.0, 0, 0),
@@ -66,7 +64,7 @@ class GameController:
 				for i in travelsal:
 					self.AgentMove(i, 0, True)
 
-	def Level3(self):
+	def Level3_4(self,_level):
 		# Turn base
 		visited_map = [[0] * self.height for _ in range(self.width)]
 		queue_food = Q.PriorityQueue()
@@ -85,7 +83,7 @@ class GameController:
 				return
 			# Monster turn
 			for i in range(len(self.ghost)):
-				__next_move = self.GhostTurn(i, 3)
+				__next_move = self.GhostTurn(i, _level)
 				if (__next_move is not None):
 					self.AgentMove(__next_move, i, False)
 				if(self.IsEndGame() == True):
@@ -98,8 +96,6 @@ class GameController:
 		if(_level == 3):
 			__next_move = self.ConvertIndexMaze(self.posGhost[index])
 			if(len(self.movementList[index]) == 0):
-				# crossMovement = [[(-1,0),(-1,0),(1,0),(1,0),(1,0),(1,0),(-1,0),(-1,0)],[(0,1),(0,1),(0,-1),(0,-1),(0,-1),(0,-1),(0,1),(0,1)]]
-				# squareMovement = [[(-1,0),(0,1),(1,0),(0,-1)],[(-1,0),(0,-1),(1,0),(0,1)]]
 				distx = [0, 0, 1, -1]
 				disty = [1, -1, 0, 0]
 				combined = list(zip(distx, disty))
@@ -114,18 +110,6 @@ class GameController:
 						self.movementList[index].append((-dx, -dy))
 				if not self.movementList[index]:
 					self.movementList[index] = [(0,0)]
-				# if(randint(0,1) == 0):
-				# 	# Cross movement
-				# 	if(randint(0,1) == 1):
-				# 		self.movementList[index] = crossMovement[randint(0,1)]
-				# 	else:
-				# 		self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in crossMovement[randint(0,1)]]
-				# else:
-				# 	# Square movement
-				# 	if(randint(0,1) == 1):
-				# 		self.movementList[index] = squareMovement[randint(0,1)]
-				# 	else:
-				# 		self.movementList[index] = [ (i[0]*-1,i[1]*-1) for i in squareMovement[randint(0,1)]]
 			while(True):
 				__next_move = tuple(map(operator.add, __next_move,
                            self.movementList[index].pop(0)))
